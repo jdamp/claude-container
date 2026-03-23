@@ -1,0 +1,21 @@
+# Personal dotfiles / shell config
+.bash_profile
+.bashrc
+.zshrc
+.zprofile
+.profile
+.gitconfig
+.ripgreprc
+
+# IDE / editor
+.idea
+.vscode
+
+# MCP config (may contain secrets)
+.mcp.json
+
+# Claude local settings (may contain secrets)
+.claude/settings.local.json
+
+# Temp / pip artifacts
+pip-uninstall-*/

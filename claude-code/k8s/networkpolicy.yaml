@@ -1,0 +1,43 @@
+# Default-deny all ingress and egress for every pod in the namespace.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+  namespace: claude-code
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+# Explicit allow policy for the claude-code pod.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: claude-code-allow
+  namespace: claude-code
+spec:
+  podSelector:
+    matchLabels:
+      app: claude-code
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # SSH from any source (arrives via NodePort NAT from WireGuard-connected clients)
+    - ports:
+        - port: 22
+          protocol: TCP
+  egress:
+    # DNS resolution (both UDP and TCP)
+    - ports:
+        - port: 53
+          protocol: UDP
+        - port: 53
+          protocol: TCP
+    # HTTP/HTTPS for Squid to reach allowlisted external domains
+    - ports:
+        - port: 80
+          protocol: TCP
+        - port: 443
+          protocol: TCP
