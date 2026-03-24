@@ -16,8 +16,8 @@ if ! getent passwd "$USER_UID" > /dev/null 2>&1; then
 fi
 USER_NAME=$(getent passwd "$USER_UID" | cut -d: -f1)
 
-# Ensure ownership of config and workspace dirs (non-recursive for config to preserve token perms)
-chown "$USER_UID:$USER_GID" /claude
+# Ensure ownership of config and workspace dirs
+chown -R "$USER_UID:$USER_GID" /claude
 chown -R "$USER_UID:$USER_GID" /workspace
 
 # --- SSH host key persistence ---
@@ -60,6 +60,10 @@ EOF
 # Start sshd in the background (runs as root; handles privilege drop on connect)
 /usr/sbin/sshd
 echo "[entrypoint] sshd started"
+
+# Set HOME for the non-root user. su-exec does not change HOME, so without this
+# Claude Code inherits HOME=/root and cannot find persisted auth tokens.
+export HOME="$HOME_DIR"
 
 # Keep-alive loop: restart claude if it exits (e.g. session timeout)
 if [ "$1" = "claude" ]; then
