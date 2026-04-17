@@ -34,8 +34,9 @@ kubectl rollout restart deployment -n claude-code claude-code
 
 The deployment lives in the `claude-code` namespace and consists of a single `Deployment` (1 replica, `Recreate` strategy) with two containers sharing a pod:
 
-- **`claude-code` container** — Runs the Claude Code CLI. Proxies all egress traffic through the Squid sidecar via `HTTP_PROXY`/`HTTPS_PROXY` env vars. Mounts two PVCs:
+- **`claude-code` container** — Runs the Claude Code CLI. Proxies all egress traffic through the Squid sidecar via `HTTP_PROXY`/`HTTPS_PROXY` env vars. Mounts three PVCs:
   - `claude-config-pvc` (1Gi) at `/claude` — stores OAuth tokens (`CLAUDE_CONFIG_DIR`)
+  - `claude-home-pvc` at `/home/claude` — user home dir; persists shell history, `.ssh/authorized_keys`, and per-user tool config across restarts
   - `claude-workspace-pvc` (10Gi) at `/workspace` — project files
 
 - **`squid` sidecar** — Forward proxy listening on `localhost:3128`. Enforces a domain allowlist (`allowed-domains.txt` in the ConfigMap). All HTTPS uses `CONNECT` tunneling (no SSL bump). Logs to stdout.

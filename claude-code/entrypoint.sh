@@ -16,9 +16,11 @@ if ! getent passwd "$USER_UID" > /dev/null 2>&1; then
 fi
 USER_NAME=$(getent passwd "$USER_UID" | cut -d: -f1)
 
-# Ensure ownership of config and workspace dirs
+# Ensure ownership of config, workspace, and home dirs (fresh PVC mounts are root-owned)
+HOME_DIR=$(getent passwd "$USER_UID" | cut -d: -f6)
 chown -R "$USER_UID:$USER_GID" /claude
 chown -R "$USER_UID:$USER_GID" /workspace
+chown -R "$USER_UID:$USER_GID" "$HOME_DIR"
 
 # --- SSH host key persistence ---
 # Keys are stored on the config PVC so the fingerprint stays stable across pod restarts.
@@ -36,7 +38,6 @@ chmod 600 "${SSH_HOST_KEY_DIR}"/ssh_host_*_key
 chmod 644 "${SSH_HOST_KEY_DIR}"/ssh_host_*_key.pub
 
 # Set up authorized_keys from the mounted Secret
-HOME_DIR=$(getent passwd "$USER_UID" | cut -d: -f6)
 mkdir -p "${HOME_DIR}/.ssh"
 cp /etc/ssh/authorized_keys "${HOME_DIR}/.ssh/authorized_keys"
 chmod 700 "${HOME_DIR}/.ssh"

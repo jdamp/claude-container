@@ -22,11 +22,17 @@ RUN apk add --no-cache \
 # uv (Python package manager)
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
-# bun — install as the UID-1000 user so it lands in a home the runtime user can read
-USER node
-RUN curl -fsSL https://bun.com/install | bash
-USER root
-ENV PATH="/home/node/.bun/bin:${PATH}"
+# Rename the UID-1000 user from `node` to `claude` with home /home/claude.
+# /home/claude is mounted as a persistent PVC at runtime, so anything written
+# to it (shell history, tool configs, .ssh/authorized_keys) survives restarts.
+RUN sed -i 's|^node:|claude:|; s|:/home/node:|:/home/claude:|' /etc/passwd && \
+    sed -i 's|^node:|claude:|' /etc/group && \
+    rm -rf /home/node && \
+    mkdir -p /home/claude && \
+    chown -R 1000:1000 /home/claude
+
+# bun — installed via npm so it lands in /usr/local/bin, independent of $HOME
+RUN npm install -g bun
 
 # Fonts not packaged in Alpine (Roboto comes from apk above)
 RUN mkdir -p /usr/share/fonts/source-sans-pro /usr/share/fonts/font-awesome && \
