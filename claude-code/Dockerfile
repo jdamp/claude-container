@@ -18,8 +18,7 @@ RUN apk add --no-cache \
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
 # bun
-COPY --from=oven/bun:latest /usr/local/bin/bun /usr/local/bin/bun
-COPY --from=oven/bun:latest /usr/local/bin/bunx /usr/local/bin/bunx
+RUN curl -fsSL https://bun.com/install | bash
 
 # typst
 ARG TYPST_VERSION=0.13.1
