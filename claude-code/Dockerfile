@@ -34,16 +34,9 @@ RUN sed -i 's|^node:|claude:|; s|:/home/node:|:/home/claude:|' /etc/passwd && \
 # bun — installed via npm so it lands in /usr/local/bin, independent of $HOME
 RUN npm install -g bun
 
-# Fonts not packaged in Alpine (Roboto comes from apk above)
-RUN mkdir -p /usr/share/fonts/source-sans-pro /usr/share/fonts/font-awesome && \
-    wget -qO /tmp/sanspro.zip \
-        "https://github.com/adobe-fonts/source-sans/releases/download/2.045R-ro%2F1.095R-it/source-sans-pro-2.045R-ro-1.095R-it.zip" && \
-    unzip -qj /tmp/sanspro.zip "*.otf" -d /usr/share/fonts/source-sans-pro/ && \
-    wget -qO /tmp/fa.zip \
-        "https://use.fontawesome.com/releases/v6.5.2/fontawesome-free-6.5.2-desktop.zip" && \
-    unzip -qj /tmp/fa.zip "*/otfs/*.otf" -d /usr/share/fonts/font-awesome/ && \
-    fc-cache -f && \
-    rm -f /tmp/sanspro.zip /tmp/fa.zip
+# Fonts
+COPY install-fonts.sh /tmp/install-fonts.sh
+RUN chmod +x /tmp/install-fonts.sh && /tmp/install-fonts.sh && rm /tmp/install-fonts.sh
 
 # typst
 ARG TYPST_VERSION=0.13.1
