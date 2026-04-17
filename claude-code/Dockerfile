@@ -6,8 +6,10 @@ RUN apk add --no-cache \
     curl \
     git \
     jq \
+    just \
     make \
     openssh \
+    perl \
     python3 \
     py3-pip \
     ripgrep \
