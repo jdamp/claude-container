@@ -4,6 +4,8 @@ FROM node:22-alpine
 RUN apk add --no-cache \
     bash \
     curl \
+    font-roboto \
+    fontconfig \
     git \
     jq \
     just \
@@ -14,6 +16,7 @@ RUN apk add --no-cache \
     py3-pip \
     ripgrep \
     su-exec \
+    unzip \
     wget
 
 # uv (Python package manager)
@@ -24,6 +27,17 @@ USER node
 RUN curl -fsSL https://bun.com/install | bash
 USER root
 ENV PATH="/home/node/.bun/bin:${PATH}"
+
+# Fonts not packaged in Alpine (Roboto comes from apk above)
+RUN mkdir -p /usr/share/fonts/source-sans-pro /usr/share/fonts/font-awesome && \
+    wget -qO /tmp/sanspro.zip \
+        "https://github.com/adobe-fonts/source-sans/releases/download/2.045R-ro%2F1.095R-it/source-sans-pro-2.045R-ro-1.095R-it.zip" && \
+    unzip -qj /tmp/sanspro.zip "*.otf" -d /usr/share/fonts/source-sans-pro/ && \
+    wget -qO /tmp/fa.zip \
+        "https://use.fontawesome.com/releases/v6.5.2/fontawesome-free-6.5.2-desktop.zip" && \
+    unzip -qj /tmp/fa.zip "*/otfs/*.otf" -d /usr/share/fonts/font-awesome/ && \
+    fc-cache -f && \
+    rm -f /tmp/sanspro.zip /tmp/fa.zip
 
 # typst
 ARG TYPST_VERSION=0.13.1
