@@ -17,8 +17,11 @@ RUN apk add --no-cache \
 # uv (Python package manager)
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
-# bun
+# bun — install as the UID-1000 user so it lands in a home the runtime user can read
+USER node
 RUN curl -fsSL https://bun.com/install | bash
+USER root
+ENV PATH="/home/node/.bun/bin:${PATH}"
 
 # typst
 ARG TYPST_VERSION=0.13.1
