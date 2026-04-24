@@ -64,3 +64,16 @@ jobs:
             CLAUDE_CODE_VERSION=${{ steps.claude-version.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Write job summary
+        run: |
+          IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+          VERSION="${{ steps.claude-version.outputs.version }}"
+          {
+            echo "## Published Image"
+            echo ""
+            echo "| Tag | Full reference |"
+            echo "| --- | --- |"
+            echo "| \`latest\` | \`${IMAGE}:latest\` |"
+            echo "| \`${VERSION}\` | \`${IMAGE}:${VERSION}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
